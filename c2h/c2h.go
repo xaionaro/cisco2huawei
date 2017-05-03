@@ -9,12 +9,12 @@ import (
 )
 
 type Vlan struct {
-	Enabled bool	`json:,omitempty`
-	Name    string	`json:,omitempty`
+	Enabled bool	`json:",omitempty"`
+	Name    string	`json:",omitempty"`
 }
 
 type Configuration struct {
-	Vlan [4095]Vlan	`json:,omitempty`
+	Vlan [4095]Vlan	`json:",omitempty"`
 }
 
 func checkErr(err error) {
