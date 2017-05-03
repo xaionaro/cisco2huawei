@@ -83,6 +83,9 @@ func WriteToHuaweiFile(out io.Writer, config Configuration) (err error) {
 		if !vlan.Enabled {
 			continue
 		}
+		if vlan.Name == "" {
+			vlan.Name = fmt.Sprintf("vlan%v", vlan.Id)
+		}
 		_, err = fmt.Fprintf(out, "vlan %v\nname %v\nq\n", vlan.Id, vlan.Name)
 		checkErr(err)
 	}
