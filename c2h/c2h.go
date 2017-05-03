@@ -9,12 +9,13 @@ import (
 )
 
 type Vlan struct {
-	Enabled bool	`json:",omitempty"`
-	Name    string	`json:",omitempty"`
+	Id      int
+	Enabled bool   `json:",omitempty"`
+	Name    string `json:",omitempty"`
 }
 
 type Configuration struct {
-	Vlan [4095]Vlan	`json:",omitempty"`
+	Vlan []Vlan `json:",omitempty"`
 }
 
 func checkErr(err error) {
@@ -53,7 +54,8 @@ func ParseCiscoFile(in io.Reader) (config Configuration, err error) {
 			vlanId, err := strconv.Atoi(words[1])
 			checkErr(err)
 
-			vlan := &config.Vlan[vlanId]
+			var vlan Vlan
+			vlan.Id = vlanId
 			vlan.Enabled = true
 			for {
 				line, eof := readLine(reader)
@@ -69,6 +71,7 @@ func ParseCiscoFile(in io.Reader) (config Configuration, err error) {
 					vlan.Name = strings.Join(words[2:], " ")
 				}
 			}
+			config.Vlan = append(config.Vlan, vlan)
 		}
 	}
 
@@ -76,11 +79,11 @@ func ParseCiscoFile(in io.Reader) (config Configuration, err error) {
 }
 
 func WriteToHuaweiFile(out io.Writer, config Configuration) (err error) {
-	for vlanId, vlan := range config.Vlan {
+	for _, vlan := range config.Vlan {
 		if !vlan.Enabled {
 			continue
 		}
-		_, err = fmt.Fprintf(out, "vlan %v\nname %v\nq\n", vlanId, vlan.Name)
+		_, err = fmt.Fprintf(out, "vlan %v\nname %v\nq\n", vlan.Id, vlan.Name)
 		checkErr(err)
 	}
 	return
